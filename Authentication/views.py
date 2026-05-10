@@ -250,6 +250,23 @@ class LoginView(APIView):
                     
                     # Check if 2FA is enabled
                     if user.is_2fa_enabled:
+                        # Prevent spam resend for 2FA OTP
+                        if user.last_2fa_otp_sent_at:
+                            seconds_passed = (
+                                timezone.now() - user.last_2fa_otp_sent_at
+                            ).total_seconds()
+
+                            if seconds_passed < 60:
+                                remaining_seconds = int(60 - seconds_passed)
+                                return Response(
+                                    {
+                                        'error': (
+                                            f'Please wait {remaining_seconds} seconds before another request.'
+                                        )
+                                    },
+                                    status=status.HTTP_429_TOO_MANY_REQUESTS
+                                )
+
                         # Generate 2FA OTP and send via email
                         otp = user.generate_2fa_otp()
                         email_data = {
@@ -258,6 +275,10 @@ class LoginView(APIView):
                             'to_email': user.email
                         }
                         Util.send_email(email_data)
+
+                        # Update last 2FA OTP sent timestamp
+                        user.last_2fa_otp_sent_at = timezone.now()
+                        user.save()
                         
                         # Create a temporary token for 2FA verification
                         # from rest_framework_simplejwt.tokens import RefreshToken
@@ -412,6 +433,23 @@ class ChangeEmailView(APIView):
 
             user = request.user
 
+            # Prevent spam resend
+            if user.last_email_change_otp_sent_at:
+                seconds_passed = (
+                    timezone.now() - user.last_email_change_otp_sent_at
+                ).total_seconds()
+
+                if seconds_passed < 60:
+                    remaining_seconds = int(60 - seconds_passed)
+                    return Response(
+                        {
+                            'error': (
+                                f'Please wait {remaining_seconds} seconds before another request.'
+                            )
+                        },
+                        status=status.HTTP_429_TOO_MANY_REQUESTS
+                    )
+
             new_email = serializer.validated_data.get('new_email')
 
             otp = user.generate_pending_email_otp(new_email)
@@ -427,6 +465,10 @@ class ChangeEmailView(APIView):
             }
 
             Util.send_email(email_data)
+
+            # Update last email change OTP sent timestamp
+            user.last_email_change_otp_sent_at = timezone.now()
+            user.save()
 
             return Response(
                 {
@@ -481,6 +523,23 @@ class SendResetPasswordEmailView(APIView):
             try:
                 user = User.objects.get(email=email)
 
+                # Prevent spam resend
+                if user.last_password_reset_sent_at:
+                    seconds_passed = (
+                        timezone.now() - user.last_password_reset_sent_at
+                    ).total_seconds()
+
+                    if seconds_passed < 60:
+                        remaining_seconds = int(60 - seconds_passed)
+                        return Response(
+                            {
+                                'error': (
+                                    f'Please wait {remaining_seconds} seconds before another request.'
+                                )
+                            },
+                            status=status.HTTP_429_TOO_MANY_REQUESTS
+                        )
+
                 uid = urlsafe_base64_encode(force_bytes(user.id))
                 token = PasswordResetTokenGenerator().make_token(user)
 
@@ -492,6 +551,10 @@ class SendResetPasswordEmailView(APIView):
                     'to_email': user.email
                 }
                 Util.send_email(email_data)
+
+                # Update last password reset sent timestamp
+                user.last_password_reset_sent_at = timezone.now()
+                user.save()
 
                 return Response(
                     {'msg': 'Password reset link sent. Check your email.'},
@@ -570,16 +633,18 @@ class ResendVerificationEmailView(APIView):
             user = User.objects.get(email=email)
 
             # Prevent spam resend
-            if user.last_otp_sent_at:
+            if user.last_verification_otp_sent_at:
                 seconds_passed = (
-                    timezone.now() - user.last_otp_sent_at
+                    timezone.now() - user.last_verification_otp_sent_at
                 ).total_seconds()
 
                 if seconds_passed < 60:
+
+                    remaining_seconds = int(60 - seconds_passed)
                     return Response(
                         {
                             'error': (
-                                'Please wait before requesting another OTP'
+                                f'Please wait {remaining_seconds} seconds before another request.'
                             )
                         },
                         status=status.HTTP_429_TOO_MANY_REQUESTS
@@ -600,6 +665,10 @@ class ResendVerificationEmailView(APIView):
                 'to_email': user.email
             }
             Util.send_email(email_data)
+
+            # Update last verification OTP sent timestamp
+            user.last_verification_otp_sent_at = timezone.now()
+            user.save()
 
             return Response(
                 {'msg': 'Verification email resent with link and OTP. Check your email.'},
@@ -840,6 +909,23 @@ class Setup2FAView(APIView):
         if serializer.is_valid(raise_exception=True):
             method = serializer.validated_data.get('method')
             
+            # Prevent spam resend for 2FA setup OTP
+            if user.last_2fa_otp_sent_at:
+                seconds_passed = (
+                    timezone.now() - user.last_2fa_otp_sent_at
+                ).total_seconds()
+
+                if seconds_passed < 60:
+                    remaining_seconds = int(60 - seconds_passed)
+                    return Response(
+                        {
+                            'error': (
+                                f'Please wait {remaining_seconds} seconds before another request.'
+                            )
+                        },
+                        status=status.HTTP_429_TOO_MANY_REQUESTS
+                    )
+            
             # Generate OTP for setup verification
             otp = user.generate_2fa_otp()
             
@@ -850,6 +936,10 @@ class Setup2FAView(APIView):
                 'to_email': user.email
             }
             Util.send_email(email_data)
+
+            # Update last 2FA OTP sent timestamp
+            user.last_2fa_otp_sent_at = timezone.now()
+            user.save()
             
             # Log 2FA setup attempt
             from .models import TwoFALog

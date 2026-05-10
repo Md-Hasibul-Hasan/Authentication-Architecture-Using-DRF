@@ -22,7 +22,9 @@ class UserModelAdmin(BaseUserAdmin):
         
         ("Permissions", {'fields': ['is_active','is_staff','is_superuser','groups','user_permissions']}),
 
-        ("Security Fields", {'fields': ['failed_login_attempts','locked_until','last_login_ip','otp_attempts','otp_locked_until','last_otp_sent_at']}),
+        ("Security Fields", {'fields': ['failed_login_attempts','locked_until','last_login_ip','otp_attempts','otp_locked_until']}),
+
+        ("Spam Protection Timestamps", {'fields': ['last_verification_otp_sent_at','last_password_reset_sent_at','last_2fa_otp_sent_at','last_email_change_otp_sent_at']}),
 
         ("OTP Verification Fields", {'fields': ['otp','otp_created_at','otp_expires_at']}),
 

@@ -56,7 +56,12 @@ class User(AbstractBaseUser,PermissionsMixin):
     last_login_ip = models.GenericIPAddressField(null=True, blank=True)
     otp_attempts = models.IntegerField(default=0)
     otp_locked_until = models.DateTimeField(null=True, blank=True)
-    last_otp_sent_at = models.DateTimeField(null=True, blank=True)
+    
+    # Specific OTP/Email sending timestamps for spam protection
+    last_verification_otp_sent_at = models.DateTimeField(null=True, blank=True)
+    last_password_reset_sent_at = models.DateTimeField(null=True, blank=True)
+    last_2fa_otp_sent_at = models.DateTimeField(null=True, blank=True)
+    last_email_change_otp_sent_at = models.DateTimeField(null=True, blank=True)
     
     # OTP verification fields
     otp = models.CharField(max_length=6, null=True, blank=True)
@@ -106,7 +111,6 @@ class User(AbstractBaseUser,PermissionsMixin):
 
         self.otp_attempts = 0
         self.otp_locked_until = None
-        self.last_otp_sent_at = timezone.now()
 
         self.save()
         return self.otp
