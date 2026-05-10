@@ -1,133 +1,233 @@
-# 🔐 DRF_Auth – Complete JWT Authentication System
+# 🔐 DRF Advanced Authentication System
 
-![Django](https://img.shields.io/badge/Django-4.x-green)
+![Django](https://img.shields.io/badge/Django-5.x-green)
 ![DRF](https://img.shields.io/badge/DRF-REST_Framework-red)
 ![JWT](https://img.shields.io/badge/Auth-JWT-blue)
-![Status](https://img.shields.io/badge/Status-Active-success)
+![Security](https://img.shields.io/badge/Security-Advanced-success)
+![Status](https://img.shields.io/badge/Status-Production_Ready-success)
 
-DRF_Auth is a production-ready authentication system built with Django REST Framework and JWT (JSON Web Tokens).
+A complete advanced authentication system built with Django REST Framework and JWT authentication.
 
-It provides secure authentication with:
+This project provides enterprise-level authentication features including:
 
-- User Registration
+- JWT Authentication
 - Email Verification
-- Login
-- JWT Token Generation
-- Token Refresh & Verify
+- OTP Verification
+- Two-Factor Authentication (2FA)
+- Google Login
+- Session Management
+- Login History Tracking
+- Password Reset
+- Account Lockout Protection
+- Rate Limiting
+- Secure Profile Management
+
+---
+
+# ✨ Features
+
+## 🔑 Authentication
+
+- JWT Access & Refresh Tokens
+- Token Rotation
+- Token Blacklisting
+- Secure Login System
+- Google OAuth Login
+- Protected APIs
+
+## 📧 Email Verification
+
+- Verification Link
+- OTP Verification
+- Resend Verification Email
+- OTP Expiration & Retry Protection
+
+## 🔒 Security Features
+
+- Account Lockout After Failed Login Attempts
+- OTP Attempt Limiting
+- Rate Limiting
+- Refresh Token Blacklisting
+- Secure Password Validation
+- Logout From All Devices
+- Logout From Specific Device
+
+## 🛡️ Two-Factor Authentication (2FA)
+
+- Email-based OTP Authentication
+- Enable / Disable 2FA
+- 2FA Verification During Login
+- 2FA Audit Logs
+- 2FA Attempt Locking
+
+## 👤 User Features
+
 - Profile Management
-- Password Change
-- Password Reset via Email
+- Profile Image Upload
+- Change Password
+- Change Email with OTP Verification
+- Delete Account
+
+## 📊 Activity Tracking
+
+- Login History
+- Device Session Tracking
+- IP Address Logging
+- User-Agent Tracking
+
+## ⚙️ Admin Features
+
+- Fully Customized Django Admin
+- User Session Monitoring
+- Login History Monitoring
+- 2FA Activity Logs
+- Profile Image Preview
 
 ---
 
-# 🚀 Features
+# 🧱 Tech Stack
 
-- ✅ JWT Authentication (Access & Refresh Tokens)
-- ✅ User Registration API
-- ✅ Email Verification System
-- ✅ Secure Login API
-- ✅ Profile API (Protected)
-- ✅ Change Password API
-- ✅ Send Reset Password Email
-- ✅ Reset Password via Token
-- ✅ Token Verify & Refresh
-- ✅ Admin Panel Support
-- ✅ Scalable API Architecture
+| Layer | Technology |
+|---|---|
+| Backend | Django 5 |
+| API Framework | Django REST Framework |
+| Authentication | SimpleJWT |
+| Database | SQLite / PostgreSQL |
+| Email Service | Django Email Backend |
+| OAuth | Google OAuth |
+| Security | JWT Blacklisting + Throttling |
 
 ---
 
-# 📡 Available API Endpoints
+# 📡 API Endpoints
 
-## 🔑 Authentication Endpoints
+## 🔐 Authentication
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/user/register/` | Register new user |
-| POST | `/api/user/login/` | Login user |
-| POST | `/api/user/token/` | Obtain JWT access & refresh tokens |
-| POST | `/api/user/token/refresh/` | Refresh access token |
-| POST | `/api/user/token/verify/` | Verify token validity |
+|---|---|---|
+| POST | `/auth_api/register/` | Register user |
+| POST | `/auth_api/login/` | Login user |
+| POST | `/auth_api/logout/` | Logout current device |
+| POST | `/auth_api/logout-all/` | Logout all devices |
+| POST | `/auth_api/auth/google/` | Google login |
 
 ---
 
 ## 📧 Email Verification
 
 | Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/user/verify-email/<uid>/<token>/` | Verify email address |
+|---|---|---|
+| POST | `/auth_api/verify-email/<uid>/<token>/` | Verify email using link |
+| POST | `/auth_api/verify-otp/` | Verify email using OTP |
+| POST | `/auth_api/resend-verification/` | Resend verification email |
 
 ---
 
-## 👤 User Management
+## 🔑 JWT Token APIs
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/user/profile/` | Get user profile (Protected) |
-| POST | `/api/user/change-password/` | Change password |
-| POST | `/api/user/send-reset-password-email/` | Send password reset email |
-| POST | `/api/user/reset-password/<uid>/<token>/` | Reset password |
+| Method | Endpoint |
+|---|---|
+| POST | `/auth_api/token/` |
+| POST | `/auth_api/token/refresh/` |
+| POST | `/auth_api/token/verify/` |
 
 ---
 
-## 🛠️ Admin Panel
+## 👤 User Profile
 
-```
-/admin/
-```
+| Method | Endpoint |
+|---|---|
+| GET | `/auth_api/profile/` |
+| PATCH | `/auth_api/profile/` |
+
+---
+
+## 🔒 Password Management
+
+| Method | Endpoint |
+|---|---|
+| POST | `/auth_api/change-password/` |
+| POST | `/auth_api/send-reset-password-email/` |
+| POST | `/auth_api/reset-password/<uid>/<token>/` |
+
+---
+
+## 📩 Email Change
+
+| Method | Endpoint |
+|---|---|
+| POST | `/auth_api/change-email/request/` |
+| POST | `/auth_api/change-email/confirm/` |
+
+---
+
+## 🛡️ Two-Factor Authentication
+
+| Method | Endpoint |
+|---|---|
+| POST | `/auth_api/2fa/setup/` |
+| POST | `/auth_api/2fa/enable/` |
+| POST | `/auth_api/2fa/verify/` |
+| POST | `/auth_api/2fa/disable/` |
+| GET | `/auth_api/2fa/status/` |
+
+---
+
+## 📊 Activity & Session Management
+
+| Method | Endpoint |
+|---|---|
+| GET | `/auth_api/login-history/` |
+| GET | `/auth_api/active-sessions/` |
+| DELETE | `/auth_api/delete-session/<id>/` |
+
+---
+
+## ❌ Account Management
+
+| Method | Endpoint |
+|---|---|
+| POST | `/auth_api/delete-account/` |
 
 ---
 
 # 🔄 Authentication Flow
 
-### 1️⃣ Register User
-POST → `/api/user/register/`
+## Registration Flow
 
-### 2️⃣ Verify Email
-Click verification link:
-```
-/api/user/verify-email/<uid>/<token>/
-```
-
-### 3️⃣ Login User
-POST → `/api/user/login/`
-
-Response:
-```json
-{
-  "access": "access_token_here",
-  "refresh": "refresh_token_here"
-}
-```
-
-### 4️⃣ Access Protected Routes
-
-Include header:
-
-```
-Authorization: Bearer your_access_token
-```
+1. User registers
+2. Verification email sent
+3. User verifies account via:
+   - Verification link
+   - OR OTP
+4. Account becomes active
 
 ---
 
-# 🛠️ Tech Stack
+## Login Flow
 
-| Layer | Technology |
-|-------|------------|
-| Backend | Django |
-| API Framework | Django REST Framework |
-| Auth | JWT (SimpleJWT) |
-| Database | SQLite |
-| Email | Django Email Backend |
+### Without 2FA
+
+1. User logs in
+2. JWT tokens returned
+3. Session created
+
+### With 2FA
+
+1. User logs in
+2. OTP sent to email
+3. User verifies OTP
+4. JWT tokens returned
 
 ---
 
-# ⚙️ Installation Guide
+# 📦 Installation
 
 ## 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/your-username/DRF_Auth.git
-cd DRF_Auth
+git clone https://github.com/your-username/drf-advanced-auth.git
+cd drf-advanced-auth
 ```
 
 ---
@@ -138,14 +238,16 @@ cd DRF_Auth
 python -m venv venv
 ```
 
-Activate:
+### Activate Environment
 
-Windows:
+### Windows
+
 ```bash
 venv\Scripts\activate
 ```
 
-Mac/Linux:
+### Linux / Mac
+
 ```bash
 source venv/bin/activate
 ```
@@ -156,12 +258,6 @@ source venv/bin/activate
 
 ```bash
 pip install -r requirements.txt
-```
-
-If needed:
-
-```bash
-pip install django djangorestframework djangorestframework-simplejwt
 ```
 
 ---
@@ -175,7 +271,15 @@ python manage.py migrate
 
 ---
 
-## 5️⃣ Run Server
+## 5️⃣ Create Superuser
+
+```bash
+python manage.py createsuperuser
+```
+
+---
+
+## 6️⃣ Run Development Server
 
 ```bash
 python manage.py runserver
@@ -183,65 +287,129 @@ python manage.py runserver
 
 ---
 
-# 🔐 JWT Configuration Example
+# ⚙️ Environment Variables
 
-In `settings.py`:
+Create a `.env` file in the root directory:
+
+```env
+SECRET_KEY=your_secret_key
+
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_password
+EMAIL_FROM=your_email@gmail.com
+
+FRONTEND_URL=http://localhost:3000
+```
+
+---
+
+# 🔐 JWT Configuration
 
 ```python
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    ),
+    ],
 }
 ```
 
 ---
 
-# 📬 Example Login Request
+# 🧪 Example Login Request
 
-POST `/api/user/login/`
+## Request
 
 ```json
 {
-  "email": "user@example.com",
-  "password": "password123"
+  "email": "hasib@example.com",
+  "password": "Password123"
 }
 ```
 
 ---
 
-# 🔮 Future Improvements
+## Response
 
-- Role-Based Permissions
-- Social Login (Google/GitHub)
-- Swagger / OpenAPI Documentation
-- Account Lockout System
-- Rate Limiting
-- Two-Factor Authentication (2FA)
+```json
+{
+  "msg": "Login Successful",
+  "token": {
+    "refresh": "refresh_token_here",
+    "access": "access_token_here"
+  },
+  "user": {
+    "id": 1,
+    "name": "Hasib",
+    "email": "hasib@example.com"
+  }
+}
+```
 
 ---
 
-# 🎯 Learning Outcomes
-
-This project demonstrates:
+# 🛡️ Security Features Included
 
 - JWT Authentication
-- Secure Token Handling
-- Email Verification Flow
-- Password Reset Workflow
-- Protected API Endpoints
-- REST API Architecture
-- Production-Ready Backend Design
+- Refresh Token Rotation
+- Refresh Token Blacklisting
+- Account Lockout Protection
+- OTP Expiration
+- OTP Attempt Limiting
+- Login Rate Limiting
+- Password Validation
+- Session Tracking
+- Device Logout
+- IP Address Logging
+
+---
+
+# 📂 Project Structure
+
+```bash
+DRF_Auth/
+│
+├── auth_api/
+│   ├── admin.py
+│   ├── models.py
+│   ├── serializers.py
+│   ├── urls.py
+│   ├── utils.py
+│   ├── views.py
+│   ├── renderers.py
+│
+├── DRF_Auth/
+│   ├── settings.py
+│   ├── urls.py
+│
+├── mediafiles/
+├── staticfiles/
+├── manage.py
+└── README.md
+```
+
+---
+
+# 🚀 Future Improvements
+
+- SMS-based OTP
+- Authenticator App (TOTP)
+- Redis Token Storage
+- Docker Support
+- Swagger / OpenAPI Documentation
+- Email Templates
+- OAuth Providers (GitHub/Facebook)
+- Role-Based Access Control (RBAC)
 
 ---
 
 # 👨‍💻 Author
 
-Md Hasibul Hasan  
-Backend Developer (Django & DRF)
+**Md Hasibul Hasan**
+
+Backend Developer — Django & DRF
 
 ---
 
 # 📜 License
 
-This project is developed for educational and portfolio purposes.
+This project is intended for educational, portfolio, and production-learning purposes.
