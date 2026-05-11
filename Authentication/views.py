@@ -86,8 +86,8 @@ class RegisterView(APIView):
             uid = urlsafe_base64_encode(force_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
             
-            # Generate OTP
-            otp = user.generate_otp()
+            # Generate verification OTP
+            otp = user.generate_verification_otp()
             
             verify_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}/"
 
@@ -181,7 +181,7 @@ class VerifyOTPView(APIView):
                             status=status.HTTP_403_FORBIDDEN
                         )               
                 
-                if user.verify_otp(otp):
+                if user.verify_verification_otp(otp):
                     user.is_active = True
                     user.save()
                     
@@ -549,15 +549,23 @@ class SendResetPasswordEmailView(APIView):
                 uid = urlsafe_base64_encode(force_bytes(user.id))
                 token = PasswordResetTokenGenerator().make_token(user)
 
+                # Generate password reset OTP and include it with the link
+                otp = user.generate_password_reset_otp()
                 reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
 
                 email_data = {
                     'email_subject': 'Reset Your Password',
-                    'email_body': f'Click the link to reset your password:\n{reset_link}',
+                    'email_body': (
+                        f'Click the link to reset your password:\n{reset_link}\n\n'
+                        f'Or use this OTP to reset your password: {otp}\n\n'
+                        'OTP is valid for 10 minutes.'
+                    ),
                     'to_email': user.email,
                     'context': {
                         'subject': 'Reset your password',
-                        'body': f'Please click the button below to reset your password.',
+                        'body': (
+                            f'Click the button below to reset your password or use the OTP: {otp}.'
+                        ),
                         'cta_url': reset_link,
                         'cta_text': 'Reset Password',
                     }
@@ -632,6 +640,53 @@ class ResetPasswordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ResetPasswordWithOTPView(APIView):
+    renderer_classes = [UserRenderer]
+    throttle_classes = [PasswordResetRateThrottle]
+
+    def post(self, request):
+        serializer = ResetPasswordWithOTPSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            email = serializer.validated_data.get('email')
+            otp = serializer.validated_data.get('otp')
+            password = serializer.validated_data.get('password')
+
+            try:
+                user = User.objects.get(email=email)
+
+                if user.verify_password_reset_otp(otp):
+                    user.set_password(password)
+                    user.save()
+                    logout_all_user_sessions(user)
+
+                    email_data = {
+                        'email_subject': 'Password reset completed',
+                        'email_body': (
+                            'Your password was reset successfully. If you did not perform this action, contact support.'
+                        ),
+                        'to_email': user.email
+                    }
+                    Util.send_email(email_data)
+
+                    return Response(
+                        {'msg': 'Password Reset Successfully'},
+                        status=status.HTTP_200_OK
+                    )
+                else:
+                    return Response(
+                        {'error': 'Invalid or expired OTP'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+
+            except User.DoesNotExist:
+                return Response(
+                    {'error': 'User not found'},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class ResendVerificationEmailView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [VerificationRateThrottle]
@@ -666,8 +721,8 @@ class ResendVerificationEmailView(APIView):
             uid = urlsafe_base64_encode(force_bytes(user.id))
             token = PasswordResetTokenGenerator().make_token(user)
             
-            # Generate new OTP
-            otp = user.generate_otp()
+            # Generate new verification OTP
+            otp = user.generate_verification_otp()
             
             verify_link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}/"
 

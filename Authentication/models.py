@@ -63,10 +63,17 @@ class User(AbstractBaseUser,PermissionsMixin):
     last_2fa_otp_sent_at = models.DateTimeField(null=True, blank=True)
     last_email_change_otp_sent_at = models.DateTimeField(null=True, blank=True)
     
-    # OTP verification fields
+    # Email verification OTP fields
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_created_at = models.DateTimeField(null=True, blank=True)
     otp_expires_at = models.DateTimeField(null=True, blank=True)
+
+    # Password reset OTP fields
+    password_reset_otp = models.CharField(max_length=6, null=True, blank=True)
+    password_reset_otp_created_at = models.DateTimeField(null=True, blank=True)
+    password_reset_otp_expires_at = models.DateTimeField(null=True, blank=True)
+    password_reset_otp_attempts = models.IntegerField(default=0)
+    password_reset_otp_locked_until = models.DateTimeField(null=True, blank=True)
 
     # Pending email change fields
     pending_email = models.EmailField(max_length=255, null=True, blank=True)
@@ -102,8 +109,8 @@ class User(AbstractBaseUser,PermissionsMixin):
             return True
         return False
 
-    def generate_otp(self):
-        """Generate a 6-digit OTP and set expiration time"""
+    def generate_verification_otp(self):
+        """Generate a 6-digit verification OTP and set expiration time"""
         import random
         self.otp = str(random.randint(100000, 999999))
         self.otp_created_at = timezone.now()
@@ -115,8 +122,7 @@ class User(AbstractBaseUser,PermissionsMixin):
         self.save()
         return self.otp
 
-    def verify_otp(self, otp):
-
+    def verify_verification_otp(self, otp):
         # check lock
         if self.otp_locked_until:
             if timezone.now() < self.otp_locked_until:
@@ -153,7 +159,58 @@ class User(AbstractBaseUser,PermissionsMixin):
         self.otp_locked_until = None
 
         self.save()
+        return True
 
+    def generate_password_reset_otp(self):
+        """Generate a 6-digit password reset OTP and set expiration time"""
+        import random
+        self.password_reset_otp = str(random.randint(100000, 999999))
+        self.password_reset_otp_created_at = timezone.now()
+        self.password_reset_otp_expires_at = timezone.now() + timedelta(seconds=settings.OTP_EXPIRE_TIMEOUT)  # OTP valid for 10 minutes
+
+        self.password_reset_otp_attempts = 0
+        self.password_reset_otp_locked_until = None
+
+        self.save()
+        return self.password_reset_otp
+
+    def verify_password_reset_otp(self, otp):
+        # check lock
+        if self.password_reset_otp_locked_until:
+            if timezone.now() < self.password_reset_otp_locked_until:
+                return False
+            else:
+                self.password_reset_otp_locked_until = None
+                self.password_reset_otp_attempts = 0
+                self.save()
+
+        # check otp exists
+        if not self.password_reset_otp or not self.password_reset_otp_expires_at:
+            return False
+
+        # check expiry
+        if timezone.now() > self.password_reset_otp_expires_at:
+            return False
+
+        # wrong otp
+        if self.password_reset_otp != otp:
+            self.password_reset_otp_attempts += 1
+
+            # lock after 5 failed attempts
+            if self.password_reset_otp_attempts >= settings.MAX_WRONG_OTP_ATTEMPTS:
+                self.password_reset_otp_locked_until = timezone.now() + timedelta(seconds=settings.OTP_LOCKED_TIMEOUT)
+
+            self.save()
+            return False
+
+        # success → clear otp
+        self.password_reset_otp = None
+        self.password_reset_otp_created_at = None
+        self.password_reset_otp_expires_at = None
+        self.password_reset_otp_attempts = 0
+        self.password_reset_otp_locked_until = None
+
+        self.save()
         return True
 
     def generate_pending_email_otp(self, pending_email):

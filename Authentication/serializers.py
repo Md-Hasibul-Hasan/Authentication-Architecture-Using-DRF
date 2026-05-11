@@ -205,6 +205,42 @@ class ResetPasswordSerializer(serializers.Serializer):
 
 
 
+class ResetPasswordWithOTPSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=255)
+    otp = serializers.CharField(max_length=6, min_length=6)
+    password = serializers.CharField(max_length=255, style={'input_type': 'password'}, write_only=True)
+    confirm_password = serializers.CharField(max_length=255, style={'input_type': 'password'}, write_only=True)
+
+    class Meta:
+        fields = ['email', 'otp', 'password', 'confirm_password']
+
+    def validate_email(self, value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError('User does not exist')
+        return value.lower()
+
+    def validate_otp(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError('OTP must contain only digits')
+        return value
+
+    def validate_password(self, value):
+        if len(value) < 8:
+            raise serializers.ValidationError('Password must be at least 8 characters long')
+        if not any(c.isdigit() for c in value):
+            raise serializers.ValidationError('Password must contain at least one digit')
+        if not any(c.isupper() for c in value):
+            raise serializers.ValidationError('Password must contain at least one uppercase letter')
+        return value
+
+    def validate(self, data):
+        password = data.get('password')
+        confirm_password = data.get('confirm_password')
+        if password != confirm_password:
+            raise serializers.ValidationError('Passwords do not match')
+        return data
+
+
 class VerifyOTPSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=255)
     otp = serializers.CharField(max_length=6, min_length=6)
