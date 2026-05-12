@@ -6,7 +6,8 @@ from django.utils.http import urlsafe_base64_encode
 from datetime import timedelta
 
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from Authentication.authentication import SessionJWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
@@ -23,12 +24,18 @@ from .helpers import (
 )
 from .throttles import LoginRateThrottle, RegisterRateThrottle
 
+from drf_spectacular.utils import extend_schema 
+
+
 
 
 class RegisterView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [RegisterRateThrottle]
+    permission_classes = [AllowAny]
+    serializer_class = RegistrationSerializer 
 
+    @extend_schema(request=RegistrationSerializer)
     def post(self, request):
         dt=request.data
         serializer = RegistrationSerializer(data=dt)
@@ -67,7 +74,10 @@ class RegisterView(APIView):
 class LoginView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [LoginRateThrottle]
+    permission_classes = [AllowAny]
+    serializer_class = UserLoginSerializer
 
+    @extend_schema(request=UserLoginSerializer)
     def post(self, request):
         dt = request.data
         serializer = UserLoginSerializer(data=dt)
@@ -220,7 +230,10 @@ class LoginView(APIView):
 class LogoutView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
+    serializer_class = LogoutSerializer
 
+    @extend_schema(request=LogoutSerializer)
     def post(self, request):
         try:
             refresh_token = request.data.get("refresh")
@@ -253,6 +266,7 @@ class LogoutView(APIView):
 class LogoutAllDevicesView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
 
     def post(self, request):
         try:
@@ -279,7 +293,10 @@ class LogoutAllDevicesView(APIView):
 class DeleteAccountView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
+    serializer_class = DeleteAccountSerializer
 
+    @extend_schema(request=DeleteAccountSerializer)
     def post(self, request):
         try:
             user = request.user

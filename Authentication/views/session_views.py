@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from Authentication.authentication import SessionJWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,6 +13,7 @@ from ..renderers import UserRenderer
 class LoginHistoryView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
 
     def get(self, request):
         try:
@@ -39,6 +41,7 @@ class LoginHistoryView(APIView):
 class ActiveSessionsView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
 
     def get(self, request):
 
@@ -67,6 +70,7 @@ class ActiveSessionsView(APIView):
 class DeleteSessionView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
 
     def delete(self, request, session_id):
 

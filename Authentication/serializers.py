@@ -55,6 +55,16 @@ class UserLoginSerializer(serializers.ModelSerializer):
         return value.lower()
 
 
+class LogoutSerializer(serializers.Serializer):  #swagger
+    refresh = serializers.CharField(max_length=1024)
+
+
+class GoogleLoginSerializer(serializers.Serializer):  #swagger
+    access_token = serializers.CharField(max_length=1024)
+
+
+class DeleteAccountSerializer(serializers.Serializer):  #swagger
+    password = serializers.CharField(max_length=255, write_only=True)
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

@@ -7,12 +7,17 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 
 from ..models import *
+from ..serializers import *
 from .helpers import create_user_session_with_device_tracking
+
+from drf_spectacular.utils import extend_schema
 
 
 class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = GoogleLoginSerializer
 
+    @extend_schema(request=GoogleLoginSerializer)
     def post(self, request):
         access_token = request.data.get('access_token')
 

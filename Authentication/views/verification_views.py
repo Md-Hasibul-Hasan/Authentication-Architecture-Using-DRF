@@ -7,6 +7,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 
 from ..models import *
 from ..serializers import *
@@ -14,9 +15,14 @@ from ..utils import Util
 from ..renderers import UserRenderer
 from .throttles import VerificationRateThrottle
 
+from drf_spectacular.utils import extend_schema
+
+
 
 class VerifyEmailView(APIView):
     throttle_classes = [VerificationRateThrottle]
+    renderer_classes = [UserRenderer]
+    permission_classes = [AllowAny]
     
     def post(self, request, uid, token):
         try:
@@ -52,7 +58,11 @@ class VerifyEmailView(APIView):
 
 class VerifyOTPView(APIView):
     throttle_classes = [VerificationRateThrottle]
+    renderer_classes = [UserRenderer]
+    permission_classes = [AllowAny]
+    serializer_class = VerifyOTPSerializer
     
+    @extend_schema(request=VerifyOTPSerializer)
     def post(self, request):
         dt = request.data
         serializer = VerifyOTPSerializer(data=dt)
@@ -108,7 +118,10 @@ class VerifyOTPView(APIView):
 class ResendVerificationEmailView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [VerificationRateThrottle]
+    permission_classes = [AllowAny]
+    serializer_class = ResendVerificationEmailSerializer
 
+    @extend_schema(request=ResendVerificationEmailSerializer)
     def post(self, request):
         dt = request.data
         serializer = ResendVerificationEmailSerializer(data=dt)

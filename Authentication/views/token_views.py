@@ -3,11 +3,16 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.permissions import AllowAny
 
+from ..renderers import UserRenderer
 from ..models import User, UserSession
 
 
 class SessionTokenRefreshView(TokenRefreshView):
+    renderer_classes = [UserRenderer]
+    permission_classes = [AllowAny]
+    
     def post(self, request, *args, **kwargs):
         refresh_token = request.data.get('refresh')
 

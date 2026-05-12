@@ -1,7 +1,8 @@
 from django.utils import timezone
 
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from Authentication.authentication import SessionJWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -9,10 +10,14 @@ from ..serializers import *
 from ..utils import Util
 from ..renderers import UserRenderer
 
+from drf_spectacular.utils import extend_schema
+
 
 class ProfileView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
+    serializer_class = UpdateProfileSerializer
 
     def get(self, request):
         serializer = UserProfileSerializer(request.user)
@@ -22,6 +27,7 @@ class ProfileView(APIView):
             status=status.HTTP_200_OK
         )
 
+    @extend_schema(request=UpdateProfileSerializer)
     def patch(self, request):
         serializer = UpdateProfileSerializer(
             request.user,
@@ -49,7 +55,10 @@ class ProfileView(APIView):
 class ChangeEmailView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
+    serializer_class = ChangeEmailSerializer
 
+    @extend_schema(request=ChangeEmailSerializer)
     def post(self, request):
         user = request.user
         dt = request.data
@@ -114,7 +123,10 @@ class ChangeEmailView(APIView):
 class ConfirmChangeEmailView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
+    serializer_class = ConfirmChangeEmailSerializer
 
+    @extend_schema(request=ConfirmChangeEmailSerializer)
     def post(self, request):
         user = request.user
         dt = request.data

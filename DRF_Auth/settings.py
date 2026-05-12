@@ -34,7 +34,10 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
-    'Authentication'
+    # 'Authentication',
+    'Authentication.apps.AuthenticationConfig',
+    'drf_spectacular', #swagger
+
 ]
 
 MIDDLEWARE = [
@@ -138,19 +141,48 @@ AUTHENTICATION_BACKENDS = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'Authentication.authentication.SessionJWTAuthentication',
+        # 'Authentication.authentication.SessionJWTAuthentication',
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
+
     'DEFAULT_THROTTLE_RATES': {
         'login': '10/hour',
         'verification': '10/hour',
         'register': '10/hour',
         'password-reset': '10/hour',
     },
+
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-    ]
+    ],
+
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema', # swagger
+
+
 }
 
+# swagger
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'DRF Custom Auth API',
+
+    'DESCRIPTION': 'Auto-generated API schema for DRF Custom Auth',
+
+    'VERSION': '1.0.0',
+
+    'SERVE_INCLUDE_SCHEMA': False,
+
+    'COMPONENT_SPLIT_REQUEST': True,
+
+    'SORT_OPERATIONS': False,
+
+    'SECURITY_SCHEMES': {
+        'BearerAuth': {
+            'type': 'http',
+            'scheme': 'bearer',
+            'bearerFormat': 'JWT'
+        }
+    },
+}
 
 
 SIMPLE_JWT = {
@@ -193,7 +225,5 @@ OTP_LOCKED_TIMEOUT = 600
 ACCOUNT_LOCKOUT_DURATION = 600
 MAX_WRONG_OTP_ATTEMPTS = 5
 MAX_LOGIN_ATTEMPTS=5
-
-
 
 

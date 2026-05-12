@@ -35,7 +35,7 @@ class SessionJWTAuthentication(JWTAuthentication):
             is_active=True
         ).exists():
             raise AuthenticationFailed(
-                'Session is inactive or expired.',
+                'Session is inactive or expired. Please log in again.',
                 code='inactive_session'
             )
 

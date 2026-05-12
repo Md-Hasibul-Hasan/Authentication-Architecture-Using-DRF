@@ -5,7 +5,8 @@ from django.utils.encoding import DjangoUnicodeDecodeError, force_bytes, smart_s
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from Authentication.authentication import SessionJWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -15,11 +16,16 @@ from ..utils import Util, logout_all_user_sessions
 from ..renderers import UserRenderer
 from .throttles import PasswordResetRateThrottle
 
+from drf_spectacular.utils import extend_schema
+
 
 class ChangePasswordView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
+    serializer_class = UserChangePasswordSerializer
 
+    @extend_schema(request=UserChangePasswordSerializer)
     def post(self, request):
         user = request.user
         dt = request.data
@@ -49,7 +55,10 @@ class ChangePasswordView(APIView):
 class SendResetPasswordEmailView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [PasswordResetRateThrottle]
+    permission_classes = [AllowAny]
+    serializer_class = SendResetPasswordEmailSerializer
 
+    @extend_schema(request=SendResetPasswordEmailSerializer)
     def post(self, request):
         dt = request.data
         serializer = SendResetPasswordEmailSerializer(data=dt)
@@ -122,7 +131,10 @@ class SendResetPasswordEmailView(APIView):
 
 class ResetPasswordView(APIView):
     renderer_classes = [UserRenderer]
+    permission_classes = [AllowAny]
+    serializer_class = ResetPasswordSerializer
 
+    @extend_schema(request=ResetPasswordSerializer)
     def post(self, request, uid, token):
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -173,7 +185,10 @@ class ResetPasswordView(APIView):
 class ResetPasswordWithOTPView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [PasswordResetRateThrottle]
+    permission_classes = [AllowAny]
+    serializer_class = ResetPasswordWithOTPSerializer
 
+    @extend_schema(request=ResetPasswordWithOTPSerializer)
     def post(self, request):
         serializer = ResetPasswordWithOTPSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):

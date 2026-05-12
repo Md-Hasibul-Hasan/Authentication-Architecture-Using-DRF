@@ -1,7 +1,8 @@
 from django.utils import timezone
 
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from Authentication.authentication import SessionJWTAuthentication
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import AccessToken
@@ -18,14 +19,20 @@ from .helpers import (
 )
 from .throttles import VerificationRateThrottle
 
+from drf_spectacular.utils import extend_schema
+
+
 
 
 # 2FA Views
 class Setup2FAView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
     throttle_classes = [VerificationRateThrottle]
+    serializer_class = Setup2FASerializer
 
+    @extend_schema(request=Setup2FASerializer)
     def post(self, request):
         """Setup 2FA for authenticated user"""
         user = request.user
@@ -87,8 +94,11 @@ class Setup2FAView(APIView):
 class Enable2FAView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
     throttle_classes = [VerificationRateThrottle]
+    serializer_class = Enable2FASerializer
 
+    @extend_schema(request=Enable2FASerializer)
     def post(self, request):
         """Enable 2FA after verifying the setup code"""
         user = request.user
@@ -124,7 +134,10 @@ class Enable2FAView(APIView):
 class Verify2FAView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [VerificationRateThrottle]
+    permission_classes = [AllowAny]
+    serializer_class = Verify2FASerializer
 
+    @extend_schema(request=Verify2FASerializer)
     def post(self, request):
         """Verify 2FA code during login"""
         serializer = Verify2FASerializer(data=request.data)
@@ -230,8 +243,11 @@ class Verify2FAView(APIView):
 class Disable2FAView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
     throttle_classes = [VerificationRateThrottle]
+    serializer_class = Disable2FASerializer
 
+    @extend_schema(request=Disable2FASerializer)
     def post(self, request):
         """Disable 2FA for authenticated user"""
         user = request.user
@@ -269,6 +285,7 @@ class Disable2FAView(APIView):
 class Get2FAStatusView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
+    authentication_classes = [SessionJWTAuthentication]
 
     def get(self, request):
         """Get 2FA status for authenticated user"""
