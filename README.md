@@ -8,9 +8,11 @@
 
 A complete authentication architecture built with Django REST Framework. The project combines custom JWT authentication, session-aware token validation, OTP verification, two-factor authentication, device/session tracking, Google OAuth login, account protection, and API documentation.
 
+Postman Docs: https://documenter.getpostman.com/view/48875561/2sBXqQFxV3
+
 ## Table of Contents
 
-- [Key Features](#key-features)
+- [Key Features](#-key-features)
 - [Tech Stack](#tech-stack)
 - [Architecture](#architecture)
 - [Complete Workflow](#complete-workflow)
@@ -19,31 +21,44 @@ A complete authentication architecture built with Django REST Framework. The pro
 - [API Documentation](#api-documentation)
 - [API Endpoints](#api-endpoints)
 - [Authentication Header](#authentication-header)
-- [Recommended Testing Flow](#recommended-testing-flow)
 - [Cleanup Command](#cleanup-command)
 - [Security Behavior](#security-behavior)
 - [Project Structure](#project-structure)
 - [Future Improvements](#future-improvements)
 
-## Key Features
+## ✨ Key Features
 
-- Custom JWT authentication
-- Session-aware JWT validation
-- Refresh token rotation and blacklist support
-- Email verification with OTP and activation link
-- Password reset with OTP and reset link
-- Email-based two-factor authentication
-- Device and session tracking
-- Login history and security audit logs
-- Google OAuth login and registration
-- Rate limiting and account lockout protection
-- Profile update and email change flow
-- Password change with automatic logout from all devices
-- Logout from current device, selected sessions, or all devices
-- Permanent account deletion
-- Security email notifications for sensitive actions
-- Swagger, Redoc, and Postman API documentation
-- Cleanup management command for old sessions, logs, and tokens
+### 🔐 Authentication & Security
+- **Custom JWT Authentication** - Custom token handling with rotation and validation
+- **Session-Aware JWT Validation** - Sessions tracked and validated per device/browser
+- **2FA Email-Based** - Additional security layer with email-based OTP verification
+- **OAuth2 Integration** - Seamless Google login and registration
+- **Rate Limiting & Lockout** - Automatic protection against brute force attacks
+- **Security Notifications** - Real-time alerts for sensitive operations
+
+### 📧 Email & Account Management
+- **Dual Verification Methods** - OTP or activation link for email verification
+- **Password Reset Flow** - Secure password recovery via OTP or reset link
+- **Email Change Request** - Verified email change workflow
+- **Profile Management** - Update user details and profile image
+
+### 🖥️ Session & Device Management
+- **Multi-Device Login** - Track and manage sessions across multiple devices
+- **Login History** - Complete audit trail with IP, browser, OS details
+- **Selective Logout** - Logout from specific device, selected sessions, or all devices
+- **Device Tracking** - Identify browsers, OS, IP addresses, and user agents
+
+### 🛡️ Advanced Protection
+- **Token Blacklisting** - Invalidate tokens on logout or password change
+- **Account Lockout** - Progressive lockout after failed attempts
+- **Password Change Security** - Automatic logout from all devices on password change
+- **Account Deletion** - Secure permanent account removal with data cleanup
+
+### 📊 Developer Features
+- **API Documentation** - Swagger, Redoc, and Postman integration
+- **Management Commands** - Cleanup old sessions, logs, and tokens
+- **PostgreSQL Ready** - Easy database switch from SQLite to PostgreSQL
+- **CORS Support** - Django CORS headers for frontend integration
 
 ## Tech Stack
 
@@ -293,103 +308,7 @@ Authorization: Bearer <access_token>
 Content-Type: application/json
 ```
 
-## Recommended Testing Flow
 
-1. Register a user.
-2. Verify the account using OTP or activation link.
-3. Log in without 2FA.
-4. View profile and active sessions.
-5. Set up and enable 2FA.
-6. Log in again and complete 2FA verification.
-7. Refresh tokens.
-8. View login history.
-9. Update profile information.
-10. Request and confirm email change.
-11. Change password and confirm other sessions are logged out.
-12. Test password reset by link or OTP.
-13. Delete a selected session.
-14. Log out from the current device.
-15. Log out from all devices.
-16. Delete account.
-
-## Example Requests
-
-### Register
-
-```http
-POST /api/auth/register/
-```
-
-```json
-{
-  "name": "Hasib",
-  "email": "hasib@example.com",
-  "password": "Hasib123",
-  "password2": "Hasib123"
-}
-```
-
-### Login
-
-```http
-POST /api/auth/login/
-```
-
-```json
-{
-  "email": "hasib@example.com",
-  "password": "Hasib123"
-}
-```
-
-Successful login response:
-
-```json
-{
-  "msg": "Login Successful",
-  "token": {
-    "refresh": "refresh_token",
-    "access": "access_token"
-  }
-}
-```
-
-Login response when 2FA is enabled:
-
-```json
-{
-  "requires_2fa": true,
-  "temp_token": "temporary_token"
-}
-```
-
-### Verify 2FA
-
-```http
-POST /api/auth/2fa/verify/
-```
-
-```json
-{
-  "temp_token": "temporary_token",
-  "otp": "123456"
-}
-```
-
-### Reset Password by OTP
-
-```http
-POST /api/auth/reset-password/by-otp/
-```
-
-```json
-{
-  "email": "hasib@example.com",
-  "otp": "123456",
-  "password": "NewPass123",
-  "confirm_password": "NewPass123"
-}
-```
 
 ## Cleanup Command
 
