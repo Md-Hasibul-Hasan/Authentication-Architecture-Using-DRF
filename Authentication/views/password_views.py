@@ -116,7 +116,7 @@ class SendResetPasswordEmailView(APIView):
                 user.save()
 
                 return Response(
-                    {'msg': 'Password reset link sent. Check your email.'},
+                    {'msg': 'Password reset link and OTP has been sent. Check your email.'},
                     status=status.HTTP_200_OK
                 )
             except User.DoesNotExist:
@@ -232,7 +232,7 @@ class ResetPasswordWithOTPView(APIView):
                     Util.send_email(email_data)
 
                     return Response(
-                        {'msg': 'Password Reset Successfully'},
+                        {'msg': 'Password Reset Successfully. Please login with your new password.'},
                         status=status.HTTP_200_OK
                     )
                 else:

@@ -10,7 +10,7 @@ urlpatterns = [
     path('verify-otp/', views.VerifyOTPView.as_view(), name='verify-otp'),
     path('resend-verification/', views.ResendVerificationEmailView.as_view(), name='resend-verification'),
     
-    path('login/google/', views.GoogleLoginView.as_view(), name='google-login'),
+    path('google-login/', views.GoogleLoginView.as_view(), name='google-login'),
 
     path('login/', views.LoginView.as_view(), name='login'),
     path('2fa/verify/', views.Verify2FAView.as_view(), name='verify-2fa'),
@@ -28,9 +28,9 @@ urlpatterns = [
 
 
     path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
-    path('send-reset-password-email/', views.SendResetPasswordEmailView.as_view(), name='send-reset-password-email'),
-    path('reset-password/<uid>/<token>/', views.ResetPasswordView.as_view(), name='reset-password'),
-    path('reset-password-by-otp/', views.ResetPasswordWithOTPView.as_view(), name='reset-password-by-otp'),
+    path('reset-password/request/', views.SendResetPasswordEmailView.as_view(), name='reset-password-request'),
+    path('reset-password/by-link/<uid>/<token>/', views.ResetPasswordView.as_view(), name='reset-password-by-link'),
+    path('reset-password/by-otp/', views.ResetPasswordWithOTPView.as_view(), name='reset-password-by-otp'),
     
 
 

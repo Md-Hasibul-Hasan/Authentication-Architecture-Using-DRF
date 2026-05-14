@@ -1,574 +1,348 @@
-# 🔐 DRF Advanced Authentication System
+# DRF Custom Authentication API
 
 ![Django](https://img.shields.io/badge/Django-6.0-green)
-![DRF](https://img.shields.io/badge/DRF-REST_Framework-red)
-![JWT](https://img.shields.io/badge/Auth-JWT-blue)
-![Security](https://img.shields.io/badge/Security-Advanced-success)
+![DRF](https://img.shields.io/badge/Django_REST_Framework-3.17-red)
+![SimpleJWT](https://img.shields.io/badge/Auth-SimpleJWT-blue)
+![Swagger](https://img.shields.io/badge/API_Docs-Swagger-success)
 ![Status](https://img.shields.io/badge/Status-Production_Ready-success)
 
-A complete enterprise-level authentication system built with Django REST Framework and JWT.
+A complete authentication architecture built with Django REST Framework. The project combines custom JWT authentication, session-aware token validation, OTP verification, two-factor authentication, device/session tracking, Google OAuth login, account protection, and API documentation.
 
-Includes:
+## Table of Contents
 
-- JWT Authentication
+- [Key Features](#key-features)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [Complete Workflow](#complete-workflow)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [API Documentation](#api-documentation)
+- [API Endpoints](#api-endpoints)
+- [Authentication Header](#authentication-header)
+- [Recommended Testing Flow](#recommended-testing-flow)
+- [Cleanup Command](#cleanup-command)
+- [Security Behavior](#security-behavior)
+- [Project Structure](#project-structure)
+- [Future Improvements](#future-improvements)
+
+## Key Features
+
+- Custom JWT authentication
 - Session-aware JWT validation
-- Email verification
-- OTP authentication
-- 2FA
-- Google OAuth
-- Multi-device session management
-- Token blacklisting
-- Login history tracking
-- Device tracking
-- Password reset via OTP & email
-- Logout from all devices
+- Refresh token rotation and blacklist support
+- Email verification with OTP and activation link
+- Password reset with OTP and reset link
+- Email-based two-factor authentication
+- Device and session tracking
+- Login history and security audit logs
+- Google OAuth login and registration
+- Rate limiting and account lockout protection
+- Profile update and email change flow
+- Password change with automatic logout from all devices
+- Logout from current device, selected sessions, or all devices
+- Permanent account deletion
+- Security email notifications for sensitive actions
+- Swagger, Redoc, and Postman API documentation
+- Cleanup management command for old sessions, logs, and tokens
 
----
+## Tech Stack
 
-# 📋 Table of Contents
+- Python
+- Django
+- Django REST Framework
+- Django REST Framework SimpleJWT
+- PostgreSQL-ready configuration
+- SQLite for local development by default
+- drf-spectacular for OpenAPI, Swagger, and Redoc
+- Postman
+- django-cors-headers
+- WhiteNoise
 
-- [Features](#-features)
-- [Architecture](#-architecture)
-- [Installation](#-installation)
-- [Environment Variables](#-environment-variables)
-- [Authentication Flow](#-authentication-flow)
-- [API Endpoints](#-api-endpoints)
-- [Protected Route Headers](#-protected-route-headers)
-- [Recommended Testing Order](#-recommended-testing-order)
-- [Postman Testing Guide](#-postman-testing-guide)
-- [Security Features](#-security-features)
-- [Project Structure](#-project-structure)
-
----
-
-# ✨ Features
-
-## 🔑 Authentication
-
-- JWT Authentication
-- Access & Refresh Tokens
-- Refresh Token Rotation
-- Token Blacklisting
-- Session-aware JWT Authentication
-- Google OAuth Login
-
----
-
-## 📧 Email Verification
-
-- Email Verification Link
-- OTP Verification
-- OTP Expiration
-- OTP Attempt Locking
-- Resend Verification
-- Spam Protection
-
----
-
-## 🔐 Two-Factor Authentication (2FA)
-
-- Email-based OTP 2FA
-- Enable / Disable 2FA
-- Login Verification via OTP
-- 2FA Attempt Locking
-- 2FA Audit Logs
-
----
-
-## 🔄 Session Management
-
-- Multi-device Login
-- Active Session Tracking
-- Device Fingerprinting
-- Browser & OS Detection
-- Logout Specific Device
-- Logout All Devices
-- Session Revocation
-
----
-
-## 👤 User Features
-
-- Profile Management
-- Change Password
-- Change Email with OTP
-- Delete Account
-- Upload Profile Image
-
----
-
-## 📊 Security & Monitoring
-
-- Login History
-- Failed Login Tracking
-- IP Address Logging
-- User-Agent Tracking
-- Rate Limiting
-- Account Locking
-- Password Validation
-
----
-
-# 🏗️ Architecture
+## Architecture
 
 ```text
 Client
-   ↓
-JWT Authentication Layer
-   ↓
-Custom SessionJWTAuthentication
-   ↓
-Authentication Views
-   ↓
-Database Models
-   ├── User
-   ├── UserSession
-   ├── LoginHistory
-   └── TwoFALog
+  |
+  v
+Django REST Framework API
+  |
+  v
+Custom Authentication Views
+  |
+  +-- JWT issue, refresh, rotation, and blacklist
+  +-- Session-aware JWT validation
+  +-- OTP verification and 2FA checks
+  +-- Rate limiting and account lockout protection
+  |
+  v
+Authentication Models
+  |
+  +-- User
+  +-- UserSession
+  +-- LoginHistory
+  +-- TwoFALog
+  +-- SimpleJWT token blacklist tables
 ```
 
----
+## Complete Workflow
 
-# 🚀 Installation
+Users can register with name, email, and password. After registration, the API sends a verification email containing both an activation link and an OTP, allowing the account to be activated through either method.
 
-## 1. Clone Repository
+Users log in with email and password. If 2FA is enabled, the login process returns a temporary token and requires OTP verification before access and refresh tokens are issued. Users can enable, disable, and check 2FA status from protected endpoints.
+
+The system also supports Google OAuth login and registration. Authenticated users can update their profile, request an email change, change password, reset forgotten passwords, review active sessions, inspect login history, log out from selected devices, log out from all devices, or permanently delete their account.
+
+Sensitive operations are logged and protected with rate limits, account lockout rules, token blacklisting, session deactivation, and security notifications.
+
+## Installation
+
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/drf-advanced-auth.git
-cd drf-advanced-auth
+git clone https://github.com/your-username/drf-custom-auth.git
+cd drf-custom-auth
 ```
 
----
-
-## 2. Create Virtual Environment
+### 2. Create and Activate a Virtual Environment
 
 ```bash
-python -m venv venv
+python -m venv .venv
 ```
 
-### Windows
+Windows:
 
 ```bash
-venv\Scripts\activate
+.venv\Scripts\activate
 ```
 
-### Linux / Mac
+Linux/macOS:
 
 ```bash
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
----
-
-## 3. Install Dependencies
+### 3. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## 4. Apply Migrations
+### 4. Apply Migrations
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
----
-
-## 5. Create Superuser
+### 5. Create a Superuser
 
 ```bash
 python manage.py createsuperuser
 ```
 
----
-
-## 6. Run Server
+### 6. Run the Development Server
 
 ```bash
 python manage.py runserver
 ```
 
----
+The API will be available at:
 
-# ⚙️ Environment Variables
+```text
+http://127.0.0.1:8000/
+```
 
-Create `.env`
+## Environment Variables
+
+Create a `.env` file in the project root.
 
 ```env
 DEBUG=True
-
 SECRET_KEY=your_secret_key
-
 ALLOWED_HOSTS=127.0.0.1,localhost
-
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 FRONTEND_URL=http://localhost:3000
 
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASSWORD=your_password
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your_email@gmail.com
+EMAIL_HOST_PASSWORD=your_app_password
+DEFAULT_FROM_EMAIL=your_email@gmail.com
 
 OTP_EXPIRE_TIMEOUT=600
-OTP_LOCKED_TIMEOUT=1800
 MAX_WRONG_OTP_ATTEMPTS=5
+OTP_LOCKED_UNTIL=600
+PASSWORD_RESET_TIMEOUT=600
+
+MAX_LOGIN_ATTEMPTS=5
+ACCOUNT_LOCKOUT_DURATION=600
 
 GOOGLE_CLIENT_ID=your_google_client_id
+
+LOGIN_HISTORY_RETENTION_DAYS=90
+INACTIVE_SESSION_RETENTION_DAYS=30
+TWO_FA_LOG_RETENTION_DAYS=30
 ```
 
----
+PostgreSQL configuration is included in `DRF_Auth/settings.py` as a ready-to-enable database block. Local development currently uses SQLite by default.
 
-# 🔄 Authentication Flow
+## API Documentation
 
-## Registration Flow
+Swagger UI:
 
 ```text
-Register
-   ↓
-Verification Email + OTP Sent
-   ↓
-User Verifies Email
-   ↓
-Account Activated
+http://127.0.0.1:8000/api/schema/swagger-ui/
 ```
 
----
-
-## Login Flow (Without 2FA)
+Redoc:
 
 ```text
-Login
-   ↓
-Generate Access + Refresh Tokens
-   ↓
-Create UserSession
-   ↓
-Login Success
+http://127.0.0.1:8000/api/schema/redoc/
 ```
 
----
-
-## Login Flow (With 2FA)
+OpenAPI schema:
 
 ```text
-Login
-   ↓
-Generate 2FA OTP
-   ↓
-Verify OTP
-   ↓
-Generate Access + Refresh Tokens
-   ↓
-Create UserSession
+http://127.0.0.1:8000/api/schema/
 ```
 
----
-
-## Logout Flow
+Postman documentation:
 
 ```text
-Logout
-   ↓
-Blacklist Refresh Token
-   ↓
-Deactivate UserSession
-   ↓
-Access Token Invalidated
+https://lnkd.in/gmfXCrxT
 ```
 
----
+## API Endpoints
 
-# 📡 API Endpoints
-
-## Base URL
+Base URL:
 
 ```text
-http://127.0.0.1:8000/api/user/
+http://127.0.0.1:8000/api/auth/
 ```
 
----
-
-# 🔑 Authentication Endpoints
+### Authentication
 
 | Method | Endpoint | Description |
-|---|---|---|
-| POST | `/register/` | Register user |
-| POST | `/login/` | Login |
-| POST | `/logout/` | Logout current device |
-| POST | `/logout-all/` | Logout all devices |
-| POST | `/auth/google/` | Google Login |
+| --- | --- | --- |
+| POST | `/register/` | Register a new user |
+| POST | `/login/` | Log in with email and password |
+| POST | `/google-login/` | Google OAuth login or registration |
+| POST | `/logout/` | Log out from the current device |
+| POST | `/logout-all/` | Log out from all devices |
 
----
+### Email Verification
 
-# 📧 Verification Endpoints
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| POST | `/verify-email/<uid>/<token>/` | Verify account using activation link |
+| POST | `/verify-otp/` | Verify account using OTP |
+| POST | `/resend-verification/` | Resend verification email and OTP |
 
-| Method | Endpoint |
-|---|---|
-| POST | `/verify-email/<uid>/<token>/` |
-| POST | `/verify-otp/` |
-| POST | `/resend-verification/` |
+### Two-Factor Authentication
 
----
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| POST | `/2fa/setup/` | Start 2FA setup and send OTP |
+| POST | `/2fa/enable/` | Enable 2FA after OTP verification |
+| POST | `/2fa/verify/` | Complete login when 2FA is required |
+| POST | `/2fa/disable/` | Disable 2FA |
+| GET | `/2fa/status/` | Check current 2FA status |
 
-# 🔐 2FA Endpoints
+### Sessions and Login History
 
-| Method | Endpoint |
-|---|---|
-| POST | `/2fa/setup/` |
-| POST | `/2fa/enable/` |
-| POST | `/2fa/verify/` |
-| POST | `/2fa/disable/` |
-| GET | `/2fa/status/` |
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/active-sessions/` | List active sessions and devices |
+| DELETE | `/delete-session/<session_id>/` | Log out from a specific session |
+| GET | `/login-history/` | View login history |
 
----
+### Profile and Account
 
-# 🔄 Session Endpoints
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| GET | `/profile/` | Get authenticated user profile |
+| PATCH | `/profile/` | Update profile details and image |
+| POST | `/change-email/request/` | Request email change OTP |
+| POST | `/change-email/confirm/` | Confirm email change |
+| DELETE | `/delete-account/` | Permanently delete account |
 
-| Method | Endpoint |
-|---|---|
-| GET | `/active-sessions/` |
-| DELETE | `/delete-session/<id>/` |
-| GET | `/login-history/` |
+### Password
 
----
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| POST | `/change-password/` | Change password while authenticated |
+| POST | `/reset-password/request/` | Request password reset email and OTP |
+| POST | `/reset-password/by-link/<uid>/<token>/` | Reset password using link |
+| POST | `/reset-password/by-otp/` | Reset password using OTP |
 
-# 👤 Profile Endpoints
+### JWT Tokens
 
-| Method | Endpoint |
-|---|---|
-| GET | `/profile/` |
-| PATCH | `/profile/` |
-| POST | `/change-email/request/` |
-| POST | `/change-email/confirm/` |
-| DELETE | `/delete-account/` |
+| Method | Endpoint | Description |
+| --- | --- | --- |
+| POST | `/token/refresh/` | Refresh access token and rotate refresh token |
+| POST | `/token/verify/` | Verify token validity |
 
----
+## Authentication Header
 
-# 🔑 Password Endpoints
+Protected endpoints require a bearer token.
 
-| Method | Endpoint |
-|---|---|
-| POST | `/change-password/` |
-| POST | `/send-reset-password-email/` |
-| POST | `/reset-password/<uid>/<token>/` |
-| POST | `/reset-password-by-otp/` |
-
----
-
-# 🎫 JWT Token Endpoints
-
-| Method | Endpoint |
-|---|---|
-| POST | `/token/refresh/` |
-| POST | `/token/verify/` |
-
----
-
-# 🔐 Protected Route Headers
-
-```text
-Authorization: Bearer access_token
+```http
+Authorization: Bearer <access_token>
 Content-Type: application/json
 ```
 
----
+## Recommended Testing Flow
 
-# 🧪 Recommended Testing Order
+1. Register a user.
+2. Verify the account using OTP or activation link.
+3. Log in without 2FA.
+4. View profile and active sessions.
+5. Set up and enable 2FA.
+6. Log in again and complete 2FA verification.
+7. Refresh tokens.
+8. View login history.
+9. Update profile information.
+10. Request and confirm email change.
+11. Change password and confirm other sessions are logged out.
+12. Test password reset by link or OTP.
+13. Delete a selected session.
+14. Log out from the current device.
+15. Log out from all devices.
+16. Delete account.
 
-1. Register
-2. Verify OTP
-3. Login
-4. Setup 2FA
-5. Enable 2FA
-6. Login Again
-7. Verify 2FA
-8. Active Sessions
-9. Logout
-10. Refresh Token
-11. Change Password
-12. Reset Password
-13. Change Email
-14. Delete Session
-15. Logout All
+## Example Requests
 
----
-
-# 🧪 Postman Testing Guide
-
----
-
-# 1️⃣ Register
-
-## Endpoint
+### Register
 
 ```http
-POST /register/
+POST /api/auth/register/
 ```
-
-## Body
 
 ```json
 {
   "name": "Hasib",
-  "email": "hasib@gmail.com",
+  "email": "hasib@example.com",
   "password": "Hasib123",
   "password2": "Hasib123"
 }
 ```
 
----
-
-## ✅ Success Response
-
-```json
-{
-  "msg": "Registration successful. Please check your email to verify and activate your account using the link or OTP."
-}
-```
-
----
-
-## ❌ Invalid Response
-
-```json
-{
-  "errors": {
-    "password": [
-      "Password must contain at least one uppercase letter"
-    ]
-  }
-}
-```
-
----
-
-# 2️⃣ Verify Email Using Link
-
-## Endpoint
+### Login
 
 ```http
-POST /verify-email/<uid>/<token>/
+POST /api/auth/login/
 ```
-
----
-
-## ✅ Success Response
 
 ```json
 {
-  "msg": "Email verified successfully"
-}
-```
-
----
-
-## ❌ Invalid Link
-
-```json
-{
-  "error": "Token is invalid or expired"
-}
-```
-
----
-
-# 3️⃣ Verify OTP
-
-## Endpoint
-
-```http
-POST /verify-otp/
-```
-
-## Body
-
-```json
-{
-  "email": "hasib@gmail.com",
-  "otp": "123456"
-}
-```
-
----
-
-## ✅ Success Response
-
-```json
-{
-  "msg": "OTP verified successfully. You can now log in."
-}
-```
-
----
-
-## ❌ Invalid Response
-
-```json
-{
-  "error": "Invalid or expired OTP"
-}
-```
-
----
-
-# 4️⃣ Resend Verification
-
-## Endpoint
-
-```http
-POST /resend-verification/
-```
-
-## Body
-
-```json
-{
-  "email": "hasib@gmail.com"
-}
-```
-
----
-
-## ✅ Success Response
-
-```json
-{
-  "msg": "Verification email resent successfully"
-}
-```
-
----
-
-## ❌ Spam Protection
-
-```json
-{
-  "error": "Please wait 40 seconds before another request."
-}
-```
-
----
-
-# 5️⃣ Login
-
-## Endpoint
-
-```http
-POST /login/
-```
-
-## Body
-
-```json
-{
-  "email": "hasib@gmail.com",
+  "email": "hasib@example.com",
   "password": "Hasib123"
 }
 ```
 
----
-
-## ✅ Success Response
+Successful login response:
 
 ```json
 {
@@ -580,707 +354,140 @@ POST /login/
 }
 ```
 
----
-
-## ✅ Login With 2FA Enabled
+Login response when 2FA is enabled:
 
 ```json
 {
   "requires_2fa": true,
-  "temp_token": "temp_token_here"
+  "temp_token": "temporary_token"
 }
 ```
 
----
-
-## ❌ Invalid Credentials
-
-```json
-{
-  "error": "Invalid email or password"
-}
-```
-
----
-
-# 6️⃣ Verify 2FA
-
-## Endpoint
+### Verify 2FA
 
 ```http
-POST /2fa/verify/
+POST /api/auth/2fa/verify/
 ```
-
-## Body
 
 ```json
 {
-  "temp_token": "temp_token",
+  "temp_token": "temporary_token",
   "otp": "123456"
 }
 ```
 
----
-
-## ✅ Success Response
-
-```json
-{
-  "msg": "2FA verification successful",
-  "token": {
-    "refresh": "refresh_token",
-    "access": "access_token"
-  }
-}
-```
-
----
-
-# 7️⃣ Setup 2FA
-
-## Endpoint
+### Reset Password by OTP
 
 ```http
-POST /2fa/setup/
+POST /api/auth/reset-password/by-otp/
 ```
-
-## Body
 
 ```json
 {
-  "method": "email"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "2FA setup initiated. Verification code sent."
-}
-```
-
----
-
-# 8️⃣ Enable 2FA
-
-## Endpoint
-
-```http
-POST /2fa/enable/
-```
-
-## Body
-
-```json
-{
-  "otp": "123456"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "2FA enabled successfully"
-}
-```
-
----
-
-# 9️⃣ Disable 2FA
-
-## Endpoint
-
-```http
-POST /2fa/disable/
-```
-
-## Body
-
-```json
-{
-  "password": "Hasib123"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "2FA disabled successfully"
-}
-```
-
----
-
-# 🔟 Get 2FA Status
-
-## Endpoint
-
-```http
-GET /2fa/status/
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "is_2fa_enabled": true,
-  "method": "email"
-}
-```
-
----
-
-# 1️⃣1️⃣ Profile
-
-## Endpoint
-
-```http
-GET /profile/
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "id": 1,
-  "email": "hasib@gmail.com",
-  "name": "Hasib",
-  "is_active": true
-}
-```
-
----
-
-# 1️⃣2️⃣ Update Profile
-
-## Endpoint
-
-```http
-PATCH /profile/
-```
-
-## Form Data
-
-```text
-name = Md Hasib
-image = file
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Profile updated successfully"
-}
-```
-
----
-
-# 1️⃣3️⃣ Active Sessions
-
-## Endpoint
-
-```http
-GET /active-sessions/
-```
-
----
-
-## ✅ Response
-
-```json
-[
-  {
-    "id": 1,
-    "browser": "Chrome",
-    "operating_system": "Windows",
-    "device_type": "Desktop",
-    "this_device": true
-  }
-]
-```
-
----
-
-# 1️⃣4️⃣ Login History
-
-## Endpoint
-
-```http
-GET /login-history/?limit=10
-```
-
----
-
-## ✅ Response
-
-```json
-[
-  {
-    "ip_address": "127.0.0.1",
-    "user_agent": "Chrome",
-    "login_time": "2026-05-12T10:00:00Z",
-    "is_successful": true,
-    "failure_reason": null
-  }
-]
-```
-
----
-
-# 1️⃣5️⃣ Logout Current Device
-
-## Endpoint
-
-```http
-POST /logout/
-```
-
-## Body
-
-```json
-{
-  "refresh": "refresh_token_here"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Logged out successfully"
-}
-```
-
----
-
-# 1️⃣6️⃣ Logout All Devices
-
-## Endpoint
-
-```http
-POST /logout-all/
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Logged out from all devices successfully"
-}
-```
-
----
-
-# 1️⃣7️⃣ Delete Specific Session
-
-## Endpoint
-
-```http
-DELETE /delete-session/2/
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Session logged out successfully"
-}
-```
-
----
-
-## ❌ Invalid
-
-```json
-{
-  "error": "You cannot logout your current session"
-}
-```
-
----
-
-# 1️⃣8️⃣ Change Password
-
-## Endpoint
-
-```http
-POST /change-password/
-```
-
-## Body
-
-```json
-{
-  "current_password": "Hasib123",
-  "new_password": "NewPass123",
-  "confirm_password": "NewPass123"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Password Changed Successfully"
-}
-```
-
----
-
-# 1️⃣9️⃣ Send Reset Password Email
-
-## Endpoint
-
-```http
-POST /send-reset-password-email/
-```
-
-## Body
-
-```json
-{
-  "email": "hasib@gmail.com"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Password reset email sent successfully"
-}
-```
-
----
-
-# 2️⃣0️⃣ Reset Password Using Link
-
-## Endpoint
-
-```http
-POST /reset-password/<uid>/<token>/
-```
-
-## Body
-
-```json
-{
-  "password": "NewPass123",
-  "confirm_password": "NewPass123"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Password Reset Successfully"
-}
-```
-
----
-
-## ❌ Invalid Link
-
-```json
-{
-  "error": "Link is not valid or expired"
-}
-```
-
----
-
-# 2️⃣1️⃣ Reset Password By OTP
-
-## Endpoint
-
-```http
-POST /reset-password-by-otp/
-```
-
-## Body
-
-```json
-{
-  "email": "hasib@gmail.com",
+  "email": "hasib@example.com",
   "otp": "123456",
   "password": "NewPass123",
   "confirm_password": "NewPass123"
 }
 ```
 
----
+## Cleanup Command
 
-## ✅ Response
+The project includes a management command for removing old authentication data and expired SimpleJWT tokens.
 
-```json
-{
-  "msg": "Password Reset Successfully"
-}
+Dry run:
+
+```bash
+python manage.py cleanup_auth_tables --dry-run
 ```
 
----
+Run cleanup:
 
-# 2️⃣2️⃣ Change Email Request
-
-## Endpoint
-
-```http
-POST /change-email/request/
+```bash
+python manage.py cleanup_auth_tables
 ```
 
-## Body
+Custom retention windows:
 
-```json
-{
-  "new_email": "new@gmail.com",
-  "password": "Hasib123"
-}
+```bash
+python manage.py cleanup_auth_tables --login-history-days 90 --inactive-session-days 30 --two-fa-log-days 30
 ```
 
----
+The command cleans:
 
-## ✅ Response
+- Old `LoginHistory` records
+- Inactive `UserSession` records
+- Old `TwoFALog` records
+- Expired SimpleJWT outstanding and blacklisted tokens
 
-```json
-{
-  "msg": "OTP sent to the new email."
-}
-```
-
----
-
-# 2️⃣3️⃣ Confirm Email Change
-
-## Endpoint
-
-```http
-POST /change-email/confirm/
-```
-
-## Body
-
-```json
-{
-  "new_email": "new@gmail.com",
-  "otp": "123456"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Email changed successfully"
-}
-```
-
----
-
-# 2️⃣4️⃣ Delete Account
-
-## Endpoint
-
-```http
-DELETE /delete-account/
-```
-
-## Body
-
-```json
-{
-  "password": "Hasib123"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "msg": "Account deleted successfully"
-}
-```
-
----
-
-# 2️⃣5️⃣ Refresh Token
-
-## Endpoint
-
-```http
-POST /token/refresh/
-```
-
-## Body
-
-```json
-{
-  "refresh": "refresh_token"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{
-  "access": "new_access_token",
-  "refresh": "new_refresh_token"
-}
-```
-
----
-
-# 2️⃣6️⃣ Verify Token
-
-## Endpoint
-
-```http
-POST /token/verify/
-```
-
-## Body
-
-```json
-{
-  "token": "access_token"
-}
-```
-
----
-
-## ✅ Response
-
-```json
-{}
-```
-
----
-
-## ❌ Invalid Token
-
-```json
-{
-  "detail": "Token is invalid or expired",
-  "code": "token_not_valid"
-}
-```
-
----
-
-# 🔐 Important Security Behavior
+## Security Behavior
 
 After logout:
 
-- refresh token becomes blacklisted
-- session becomes inactive
-- access token becomes unusable
+- The refresh token is blacklisted.
+- The user session is marked inactive.
+- Session-aware validation prevents access with tokens tied to inactive sessions.
 
-Protected APIs after logout return:
+After password change:
 
-```json
-{
-  "detail": "Session is inactive or expired."
-}
+- Existing sessions are revoked.
+- Other devices are logged out.
+- The user must authenticate again with the new password.
+
+Account protection includes:
+
+- OTP expiration
+- OTP attempt locking
+- Login rate limiting
+- Account lockout after repeated failures
+- Device, browser, OS, IP address, and user-agent tracking
+- Security logging for sensitive authentication events
+
+## Project Structure
+
+```text
+DRF_Custom_Auth/
+  Authentication/
+    authentication.py
+    models.py
+    renderers.py
+    serializers.py
+    throttles.py
+    urls.py
+    utils.py
+    management/
+      commands/
+        cleanup_auth_tables.py
+    views/
+      auth_views.py
+      password_views.py
+      profile_views.py
+      session_views.py
+      token_views.py
+      two_factor_views.py
+  DRF_Auth/
+    settings.py
+    urls.py
+  manage.py
+  requirements.txt
+  README.md
 ```
 
----
+## Future Improvements
 
-# 🛡️ Security Features
+- SMS OTP support
+- TOTP authenticator app support
+- Redis-backed throttling and session cache
+- Docker and Docker Compose setup
+- Role-based access control
+- WebAuthn/passkey authentication
+- CI pipeline for tests and linting
 
-- Session-aware JWT Authentication
-- Refresh Token Blacklisting
-- Multi-device Session Management
-- OTP Expiration
-- OTP Attempt Locking
-- Login Rate Limiting
-- Password Validation
-- Account Locking
-- Device Tracking
-- IP Logging
-- User-Agent Tracking
-- Logout From All Devices
-- Session Revocation
+## Author
 
----
+Md Hasibul Hasan  
+Backend Developer - Django & Django REST Framework
 
-# 📂 Project Structure
-
-```bash
-Authentication/
-│
-├── models.py
-├── serializers.py
-├── authentication.py
-├── utils.py
-├── renderers.py
-├── throttles.py
-├── urls.py
-│
-├── views/
-│   ├── auth_views.py
-│   ├── password_views.py
-│   ├── profile_views.py
-│   ├── session_views.py
-│   ├── token_views.py
-│   └── two_factor_views.py
-```
-
----
-
-# 🚀 Future Improvements
-
-- SMS OTP
-- TOTP Authenticator App
-- Redis Session Storage
-- Docker Support
-- Swagger / OpenAPI
-- RBAC
-- WebAuthn / Passkeys
-
----
-
-# 👨‍💻 Author
-
-## Md Hasibul Hasan
-
-Backend Developer — Django & DRF
-
----
-
-# 📜 License
+## License
 
 MIT License
