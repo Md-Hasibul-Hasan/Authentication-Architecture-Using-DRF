@@ -16,27 +16,43 @@ class LoginHistoryView(APIView):
     authentication_classes = [SessionJWTAuthentication]
 
     def get(self, request):
+
+        user = request.user
+
         try:
-            user = request.user
-            limit = request.query_params.get('limit', 10)
-            
-            history = LoginHistory.objects.filter(user=user)[:int(limit)]
-            
-            data = [{
+            limit = int(
+                request.query_params.get('limit', 10)
+            )
+        except ValueError:
+            return Response(
+                {
+                    'error': 'Limit must be a number'
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Clamp limit between 1 and 100
+        limit = max(1, min(limit, 100))
+
+        history = LoginHistory.objects.filter(
+            user=user
+        )[:limit]
+
+        data = [
+            {
                 'ip_address': log.ip_address,
                 'user_agent': log.user_agent,
                 'login_time': log.login_time.isoformat(),
                 'is_successful': log.is_successful,
                 'failure_reason': log.failure_reason
-            } for log in history]
-            
-            return Response(data, status=status.HTTP_200_OK)
-        except Exception as e:
-            return Response(
-                {'error': 'Failed to retrieve login history'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            }
+            for log in history
+        ]
 
+        return Response(
+            data,
+            status=status.HTTP_200_OK
+        )
 
 class ActiveSessionsView(APIView):
     renderer_classes = [UserRenderer]

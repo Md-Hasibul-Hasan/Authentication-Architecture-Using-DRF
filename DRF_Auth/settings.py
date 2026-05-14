@@ -45,13 +45,7 @@ DEBUG = env_bool('DEBUG', True)
 
 ALLOWED_HOSTS = env_list('ALLOWED_HOSTS', ['localhost', '127.0.0.1'])
 
-CORS_ALLOWED_ORIGINS = env_list(
-    'CORS_ALLOWED_ORIGINS',
-    [
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-    ]
-)
+CORS_ALLOWED_ORIGINS = env_list('CORS_ALLOWED_ORIGINS',['http://localhost:3000','http://127.0.0.1:3000',])
 
 
 
@@ -129,9 +123,9 @@ WSGI_APPLICATION = 'DRF_Auth.wsgi.application'
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv('DB_NAME', 'drf_custom_auth'),
+        "NAME": os.getenv('DB_NAME', 'postgres'),
         "USER": os.getenv('DB_USER', 'postgres'),
-        "PASSWORD": os.getenv('DB_PASSWORD', ''),
+        "PASSWORD": os.getenv('DB_PASSWORD', 'postgres'),
         "HOST": os.getenv('DB_HOST', 'localhost'),
         "PORT": os.getenv('DB_PORT', '5432'),
     }
@@ -293,6 +287,10 @@ ACCOUNT_LOCKOUT_DURATION = env_int('ACCOUNT_LOCKOUT_DURATION', 600)
 
 GEOLOCATION_ENABLED = env_bool('GEOLOCATION_ENABLED', True)
 GEOLOCATION_TIMEOUT = env_int('GEOLOCATION_TIMEOUT', 3)
+
+LOGIN_HISTORY_RETENTION_DAYS = env_int('LOGIN_HISTORY_RETENTION_DAYS', 90)
+INACTIVE_SESSION_RETENTION_DAYS = env_int('INACTIVE_SESSION_RETENTION_DAYS', 30)
+TWO_FA_LOG_RETENTION_DAYS = env_int('TWO_FA_LOG_RETENTION_DAYS', 30)
 
 
 
