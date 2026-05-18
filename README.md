@@ -8,6 +8,8 @@
 
 A complete authentication architecture built with Django REST Framework. The project combines custom JWT authentication, session-aware token validation, OTP verification, two-factor authentication, device/session tracking, Google OAuth login, account protection, and API documentation.
 
+Live: https://drf-custom-auth.onrender.com/api/schema/swagger-ui/
+
 Postman Docs: https://documenter.getpostman.com/view/48875561/2sBXqQFxV3
 
 ## Table of Contents
