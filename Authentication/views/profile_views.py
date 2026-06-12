@@ -12,7 +12,7 @@ from ..renderers import UserRenderer
 
 from drf_spectacular.utils import extend_schema
 
-
+@extend_schema(tags=["Profile"])
 class ProfileView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -51,7 +51,7 @@ class ProfileView(APIView):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-
+@extend_schema(tags=["Profile"])
 class ChangeEmailView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -120,6 +120,7 @@ class ChangeEmailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Profile"])
 class ConfirmChangeEmailView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]

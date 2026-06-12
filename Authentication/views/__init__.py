@@ -6,3 +6,4 @@ from .session_views import *
 from .twofa_views import *
 from .social_views import *
 from .token_views import *
+from .permission_views import *

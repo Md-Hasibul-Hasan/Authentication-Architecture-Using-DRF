@@ -9,7 +9,10 @@ from ..models import *
 from ..serializers import *
 from ..renderers import UserRenderer
 
+from drf_spectacular.utils import extend_schema
 
+
+@extend_schema(tags=["Login & Logout"])
 class LoginHistoryView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -54,6 +57,8 @@ class LoginHistoryView(APIView):
             status=status.HTTP_200_OK
         )
 
+
+@extend_schema(tags=["Login & Logout"])
 class ActiveSessionsView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -82,7 +87,9 @@ class ActiveSessionsView(APIView):
         )
 
 
+
 # Logout from specific device
+@extend_schema(tags=["Login & Logout"])
 class DeleteSessionView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]

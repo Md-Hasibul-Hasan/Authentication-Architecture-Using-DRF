@@ -26,6 +26,7 @@ from drf_spectacular.utils import extend_schema
 
 
 # 2FA Views
+@extend_schema(tags=["2FA"])
 class Setup2FAView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -96,6 +97,7 @@ class Setup2FAView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["2FA"])
 class Enable2FAView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -176,6 +178,7 @@ class Enable2FAView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["2FA"])
 class Verify2FAView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [VerificationRateThrottle]
@@ -308,6 +311,7 @@ class Verify2FAView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["2FA"])
 class Disable2FAView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -364,6 +368,7 @@ class Disable2FAView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["2FA"])
 class Get2FAStatusView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]

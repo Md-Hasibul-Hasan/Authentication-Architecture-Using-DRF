@@ -1,0 +1,4 @@
+pip install django django-filter django-cors-headers django-anymail djangorestframework_simplejwt drf-spectacular gunicorn pillow psycopg  django-environ user-agents
+
+pip install cloudinary django-cloudinary-storage
+

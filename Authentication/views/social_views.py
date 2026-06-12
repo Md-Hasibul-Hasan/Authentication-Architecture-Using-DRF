@@ -13,7 +13,7 @@ from .helpers import create_user_session_with_device_tracking
 
 from drf_spectacular.utils import extend_schema
 
-
+@extend_schema(tags=["Login with Google"])
 class GoogleLoginView(APIView):
     permission_classes = [AllowAny]
     renderer_classes = [UserRenderer]

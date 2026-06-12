@@ -25,7 +25,7 @@ class ChangePasswordView(APIView):
     authentication_classes = [SessionJWTAuthentication]
     serializer_class = UserChangePasswordSerializer
 
-    @extend_schema(request=UserChangePasswordSerializer)
+    @extend_schema(request=UserChangePasswordSerializer,tags=["Password"])
     def post(self, request):
         user = request.user
         dt = request.data
@@ -58,7 +58,7 @@ class SendResetPasswordEmailView(APIView):
     permission_classes = [AllowAny]
     serializer_class = SendResetPasswordEmailSerializer
 
-    @extend_schema(request=SendResetPasswordEmailSerializer)
+    @extend_schema(request=SendResetPasswordEmailSerializer,tags=["Password"])
     def post(self, request):
         dt = request.data
         serializer = SendResetPasswordEmailSerializer(data=dt)
@@ -134,7 +134,7 @@ class ResetPasswordView(APIView):
     permission_classes = [AllowAny]
     serializer_class = ResetPasswordSerializer
 
-    @extend_schema(request=ResetPasswordSerializer)
+    @extend_schema(request=ResetPasswordSerializer,tags=["Password"])
     def post(self, request, uid, token):
         serializer = ResetPasswordSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
@@ -188,7 +188,7 @@ class ResetPasswordWithOTPView(APIView):
     permission_classes = [AllowAny]
     serializer_class = ResetPasswordWithOTPSerializer
 
-    @extend_schema(request=ResetPasswordWithOTPSerializer)
+    @extend_schema(request=ResetPasswordWithOTPSerializer,tags=["Password"])
     def post(self, request):
         serializer = ResetPasswordWithOTPSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):

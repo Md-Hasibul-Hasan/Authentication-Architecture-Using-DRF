@@ -1,9 +1,17 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
-from rest_framework_simplejwt.views import TokenVerifyView
+
+
+from rest_framework.routers import DefaultRouter
+router = DefaultRouter()
+router.register(r'permissions', views.PermissionViewSet, basename='permission')
+router.register(r'groups', views.GroupViewSet, basename='group')
+router.register(r"user-access",views.UserGroupPermissionViewSet,basename="user-access")
+
 
 urlpatterns = [
 
+    path('', include(router.urls)), 
 
     path('register/', views.RegisterView.as_view(), name='register'),
     path('verify-email/<uid>/<token>/', views.VerifyEmailView.as_view(), name='verify-email'),
@@ -41,7 +49,7 @@ urlpatterns = [
 
 
     # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('token/verify/', views.CustomTokenVerifyView.as_view(), name='token_verify'),
     path('token/refresh/', views.SessionTokenRefreshView.as_view(), name='token_refresh'),
 
 

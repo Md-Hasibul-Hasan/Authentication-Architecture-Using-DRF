@@ -28,7 +28,7 @@ from drf_spectacular.utils import extend_schema
 
 
 
-
+@extend_schema(tags=["Registrations & Verifications"])
 class RegisterView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [RegisterRateThrottle]
@@ -71,6 +71,7 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Login & Logout"])
 class LoginView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [LoginRateThrottle]
@@ -253,6 +254,7 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Login & Logout"])
 class LogoutView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
@@ -288,12 +290,13 @@ class LogoutView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-
+@extend_schema(tags=["Login & Logout"])
 class LogoutAllDevicesView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]
     authentication_classes = [SessionJWTAuthentication]
 
+    
     def post(self, request):
         try:
 
@@ -315,7 +318,7 @@ class LogoutAllDevicesView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-
+@extend_schema(tags=["Profile"])
 class DeleteAccountView(APIView):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAuthenticated]

@@ -18,7 +18,7 @@ from .throttles import VerificationRateThrottle
 from drf_spectacular.utils import extend_schema
 
 
-
+@extend_schema(tags=["Registrations & Verifications"])
 class VerifyEmailView(APIView):
     throttle_classes = [VerificationRateThrottle]
     renderer_classes = [UserRenderer]
@@ -56,6 +56,7 @@ class VerifyEmailView(APIView):
             )
 
 
+@extend_schema(tags=["Registrations & Verifications"])
 class VerifyOTPView(APIView):
     throttle_classes = [VerificationRateThrottle]
     renderer_classes = [UserRenderer]
@@ -134,6 +135,7 @@ class VerifyOTPView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(tags=["Registrations & Verifications"])
 class ResendVerificationEmailView(APIView):
     renderer_classes = [UserRenderer]
     throttle_classes = [VerificationRateThrottle]

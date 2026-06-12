@@ -459,4 +459,143 @@ class UserSessionSerializer(serializers.ModelSerializer):
 
 
 
+# ======================================================
+#   Permission and Group Serializers
+# ======================================================
 
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group, Permission
+from rest_framework import serializers
+
+User = get_user_model()
+
+
+# ======================================================
+# Permission Serializer
+# ======================================================
+
+class PermissionSerializer(serializers.ModelSerializer):
+    app_label = serializers.CharField(
+        source="content_type.app_label",
+        read_only=True
+    )
+
+    model = serializers.CharField(
+        source="content_type.model",
+        read_only=True
+    )
+
+    class Meta:
+        model = Permission
+        fields = [
+            "id",
+            "name",
+            "codename",
+            "app_label",
+            "model",
+        ]
+
+
+# ======================================================
+# Group Serializer
+# ======================================================
+
+class GroupSerializer(serializers.ModelSerializer):
+    permissions = serializers.PrimaryKeyRelatedField(
+        queryset=Permission.objects.all(),
+        many=True
+    )
+
+    class Meta:
+        model = Group
+        fields = [
+            "id",
+            "name",
+            "permissions",
+        ]
+
+
+# ======================================================
+# User Group & Permission Serializer
+# ======================================================
+
+class UserGroupPermissionSerializer(serializers.ModelSerializer):
+
+    # Read
+    groups = GroupSerializer(
+        many=True,
+        read_only=True
+    )
+
+    user_permissions = PermissionSerializer(
+        many=True,
+        read_only=True
+    )
+
+    # Write
+    group_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="groups"
+    )
+
+    permission_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Permission.objects.all(),
+        many=True,
+        write_only=True,
+        required=False,
+        source="user_permissions"
+    )
+
+    effective_permissions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "name",
+            "email",
+
+            "groups",
+            "group_ids",
+
+            "user_permissions",
+            "permission_ids",
+
+            "effective_permissions",
+        ]
+
+        read_only_fields = [
+            "effective_permissions",
+        ]
+
+    def get_effective_permissions(self, obj):
+        permissions = (
+            Permission.objects.filter(
+                group__user=obj
+            )
+            | obj.user_permissions.all()
+        )
+
+        permissions = (
+            permissions
+            .distinct()
+            .select_related("content_type")
+            .order_by(
+                "content_type__app_label",
+                "codename"
+            )
+        )
+
+        return [
+            {
+                "id": permission.id,
+                "name": permission.name,
+                "codename": permission.codename,
+                "app_label": permission.content_type.app_label,
+                "model": permission.content_type.model,
+            }
+            for permission in permissions
+        ]

@@ -2,13 +2,19 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenVerifyView
 from rest_framework.permissions import AllowAny
 
 from ..renderers import UserRenderer
 from ..models import User, UserSession
+from drf_spectacular.utils import extend_schema
 
 
+@extend_schema(
+    tags=["Token"],
+    summary="Refresh JWT Token",
+    description="Generate a new access token using a valid refresh token."
+)
 class SessionTokenRefreshView(TokenRefreshView):
     renderer_classes = [UserRenderer]
     permission_classes = [AllowAny]
@@ -59,3 +65,13 @@ class SessionTokenRefreshView(TokenRefreshView):
         )
 
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
+
+
+
+@extend_schema(
+    tags=["Token"],
+    summary="Verify JWT Token",
+    description="Verify whether a JWT token is valid."
+)
+class CustomTokenVerifyView(TokenVerifyView):
+    pass
