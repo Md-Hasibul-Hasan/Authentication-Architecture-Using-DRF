@@ -7,6 +7,7 @@ from rest_framework.viewsets import (
     ModelViewSet
 )
 
+
 from rest_framework.permissions import  IsAdminUser
 from Authentication.authentication import SessionJWTAuthentication
 from ..renderers import UserRenderer
@@ -18,6 +19,8 @@ from ..serializers import (
     GroupSerializer,
     UserGroupPermissionSerializer
 )
+
+from ..paginations import MyPageNumberPagination
 
 User = get_user_model()
 
@@ -41,6 +44,8 @@ class PermissionViewSet(ReadOnlyModelViewSet):
     renderer_classes = [UserRenderer]
     permission_classes = [IsAdminUser]
     authentication_classes = [SessionJWTAuthentication]
+
+    pagination_class = MyPageNumberPagination
 
 
 # ======================================================
